@@ -19,7 +19,8 @@ import Control.Monad
 
 -- TODO remove this convenience func i added at the start of turtle porting
 run :: Text -> [Text] -> Shell Text
-run cmd args = inshell (intercalate " " $ [cmd] <> args) empty
+run cmd args = inshell (intercalate " " $ [cmd] <> qargs) empty
+    where qargs = [ "\"" <> t <> "\"" | t <- args ]
 
 xm :: [Text] -> Shell Text
 xm args = run "transmission-remote" args

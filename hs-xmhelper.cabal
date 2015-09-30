@@ -13,8 +13,8 @@ cabal-version:       >=1.10
 
 executable xm
   main-is:             Main.hs
-  -- other-modules:       
-  -- other-extensions:    
+  other-modules:       StatusParser
+                       TransmissionConfig
   build-depends:       base
                      , text
                      , bytestring
