@@ -22,15 +22,12 @@ instance FromJSON TransmissionConfig where
     parseJSON _          = mzero
 
 whoAmI = lookupEnv "USER" >>= return . pack . fromJust
-getHomeDir = lookupEnv "HOME" >>= return . pack . fromJust
-
 -- FIXME oops, this is wrong; should be owner of daemon that's checked, not owner of this process
 -- use /run/transmission/transmission.pid to find proc?
-getConfigDir = do
-    return "/var/lib/transmission/config"
-    --case uid of
-    --    "transmission" -> return "/var/lib/transmission/config"
-    --    _ -> getHomeDir >>= return . (`append` "/.config/transmission-daemon")
+--getHomeDir = lookupEnv "HOME" >>= return . pack . fromJust
+getHomeDir = return "/var/lib/transmission"
+
+getConfigDir = getHomeDir >>= return . (`append` "/.config/transmission-daemon")
 
 getConfigPath = getConfigDir >>= return . (`append` "/settings.json")
 
