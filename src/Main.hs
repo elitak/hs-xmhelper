@@ -18,14 +18,14 @@ import TransmissionConfig
 import Control.Monad
 
 -- TODO remove this convenience func i added at the start of turtle porting
-run :: Text -> [Text] -> Shell Text
+run :: Text -> [Text] -> Shell Line
 run cmd args = inshell (intercalate " " $ [cmd] <> qargs) empty
     where qargs = [ "\"" <> t <> "\"" | t <- args ]
 
-xm :: [Text] -> Shell Text
+xm :: [Text] -> Shell Line
 xm args = run "transmission-remote" args
 
-xmOn :: Shell Integer -> [Text] -> Shell Text
+xmOn :: Shell Integer -> [Text] -> Shell Line
 xmOn ids args = do
     idList <- fold ids Foldl.list
     case idList of
@@ -68,7 +68,7 @@ getFinishedIds = do
     where
           body = tail . reverse . tail . reverse -- strip first and last line
           -- XXX fromJust should never fail since failed parse returns its own data constructor. still a better way to write in applicative context?
-          parse = fromJust . (=~ statusLine) . unpack
+          parse = fromJust . (=~ statusLine) . unpack . lineToText
           isFinished StatusLine{..} = not faulty && done == DonePct 100
           --isFinished x@StatusLine{..}
           --  | not faulty && done == DonePct 100 = True
@@ -79,10 +79,10 @@ xmtest args = do
     -- test whatever here
     --return "test"
     ids <- getFinishedIds
-    return $ pack . show $ ids
+    return $ unsafeTextToLine . pack . show $ ids
 
 -- TODO replace the lookup with template-haskell or something
-calls :: [(Text, [Text] -> Shell Text)]
+calls :: [(Text, [Text] -> Shell Line)]
 calls = [ ("xm"     , xm     ) -- shortcut for "transmission-remote"
         , ("xmo"    , xmo    ) -- Operate on listed ids. e.g. "xmo -v `seq 2 4`"
         , ("xmf"    , xmf    ) -- list Finished status lines (100% and not faulty)
@@ -101,6 +101,6 @@ main = do
     name <- getProgName >>= return . pack
     args <- getArgs >>= return . map pack
     let call = fromJust $ lookup name calls
-    sh (call args >>= liftIO . putStrLn)
+    sh (call args >>= liftIO . putStrLn . lineToText)
 
 -- TODO make interactive mode where i can do `stop 1` `ls active | stop`  and/or powershell-like piping of torrent ids
