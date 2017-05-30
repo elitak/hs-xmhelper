@@ -80,7 +80,6 @@ xmtest args = do
     --return "test"
     ids <- getFinishedIds
     return $ pack . show $ ids
-    
 
 -- TODO replace the lookup with template-haskell or something
 calls :: [(Text, [Text] -> Shell Text)]
@@ -91,6 +90,10 @@ calls = [ ("xm"     , xm     ) -- shortcut for "transmission-remote"
         , ("xmclean", xmclean) -- use rsync to backup torrent files, then remove idle and finished torrents
         , ("xmtest" , xmtest) -- XXX test
         ]
+    -- TODO cmd to grab all non-stopped and dump as list of ids or names
+    --  cmd to start|stop by name rather than id so persisted lists from the above can be used across reboots
+    --  cmd to use -ph, -G -g easily to set get-rate on individual files in a torrent
+    --  `xma` alias which is `xm -t all`
 
 -- TODO: offer to create or intelligently know when to create multi-call links
 main :: IO ()
@@ -99,3 +102,5 @@ main = do
     args <- getArgs >>= return . map pack
     let call = fromJust $ lookup name calls
     sh (call args >>= liftIO . putStrLn)
+
+-- TODO make interactive mode where i can do `stop 1` `ls active | stop`  and/or powershell-like piping of torrent ids
