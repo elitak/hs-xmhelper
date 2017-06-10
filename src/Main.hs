@@ -87,19 +87,24 @@ xmtest args = do
     --
     --return "test"
 
+    -- TODO cmd to grab all non-stopped and dump as list of ids or names
+    --  cmd to start|stop by name rather than id so persisted lists from the above can be used across reboots
+    --  cmd to use -ph, -G -g easily to set get-rate on individual files in a torrent
+
 -- TODO replace the lookup with template-haskell or something
 calls :: [(Text, [Text] -> Shell Line)]
 calls = [ ("xm"     , xm     ) -- shortcut for "transmission-remote"
         , ("xmo"    , xmo    ) -- Operate on listed ids. e.g. "xmo -v `seq 2 4`"
         , ("xmf"    , xmf    ) -- list Finished status lines (100% and not faulty)
         , ("xmcheck", xmcheck) -- verify finished torrents
-        , ("xmclean", xmclean) -- use rsync to backup torrent files, then remove idle and finished torrents
+        , ("xmclean", xmclean) -- use rsync to backup torrent files, then remove idle and finished torrents TODO: use cp -u instead?
         , ("xmtest" , xmtest) -- XXX test
         ]
     -- TODO cmd to grab all non-stopped and dump as list of ids or names
     --  cmd to start|stop by name rather than id so persisted lists from the above can be used across reboots
     --  cmd to use -ph, -G -g easily to set get-rate on individual files in a torrent
     --  `xma` alias which is `xm -t all`
+    --  operate by regex matched on name:    xmr "some.*regex" -s
 
 -- TODO: offer to create or intelligently know when to create multi-call links
 main :: IO ()
