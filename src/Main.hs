@@ -17,13 +17,15 @@ import Text.Regex.Applicative
 import TransmissionConfig
 import Control.Monad
 
+import CommandPaths
+
 -- TODO remove this convenience func i added at the start of turtle porting
 run :: Text -> [Text] -> Shell Line
 run cmd args = inshell (intercalate " " $ [cmd] <> qargs) empty
     where qargs = [ "\"" <> t <> "\"" | t <- args ]
 
 xm :: [Text] -> Shell Line
-xm args = run "transmission-remote" args
+xm args = run (pack . show $ TransmissionRemote) args
 
 xmOn :: Shell Integer -> [Text] -> Shell Line
 xmOn ids args = do
@@ -49,7 +51,7 @@ xmclean args = do
     configDir <- liftIO getConfigDir
     let src = configDir <> "/torrents/"
     let dst = downloadDir <> "/_torrents"
-    ec <- view $ shell (format ("rsync -rP "%s%" "%s) src dst) empty
+    ec <- view $ shell (format (s%" -rP "%s%" "%s) (pack . show $ Rsync) src dst) empty
     -- TODO check rsync is in path
     -- TODO Guard here to make sure the above executed correctly
     -- (NB currently failure exits uncleanly because of attr preservation)
@@ -77,9 +79,13 @@ getFinishedIds = do
 
 xmtest args = do
     -- test whatever here
+    --
+    --ids <- getFinishedIds
+    --return $ unsafeTextToLine . pack . show $ ids
+    --
+    run (format ("echo "%s%" -rP "%s%" "%s) (pack.show $ Rsync) "foo" "bar") empty
+    --
     --return "test"
-    ids <- getFinishedIds
-    return $ unsafeTextToLine . pack . show $ ids
 
 -- TODO replace the lookup with template-haskell or something
 calls :: [(Text, [Text] -> Shell Line)]
